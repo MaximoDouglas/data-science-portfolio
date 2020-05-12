@@ -130,3 +130,6 @@ dmypy.json
 
 # MacOs related
 .DS_Store
+
+# Data files
+/dataset
