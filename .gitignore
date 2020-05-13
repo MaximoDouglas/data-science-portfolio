@@ -133,4 +133,4 @@ dmypy.json
 
 # Data files
 */dataset
-./code/env/
+./mask-detection/code/env
