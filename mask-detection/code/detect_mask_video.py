@@ -15,23 +15,25 @@ argument_parser.add_argument("-f", "--face", type=str, default="face_detector", 
 argument_parser.add_argument("-m", "--model", type=str, default="mask_detector.model", help="path to trained face mask detector model")
 arguments = vars(argument_parser.parse_args())
 
-CONFIDENCE_THRESHOLD = 0.5
-
-# Load face detector
 prototxt_path = os.path.sep.join([arguments["face"], "deploy.prototxt"])
 weights_path  = os.path.sep.join([arguments["face"], "res10_300x300_ssd_iter_140000_fp16.caffemodel"])
 face_net 	  = cv2.dnn.readNet(prototxt_path, weights_path)
 
-# Load face mask detector
-mask_net = load_model(arguments["model"])
+WINDOW_TITLE 		 = "Doug M. - Face Mask Detector"
+CONFIDENCE_THRESHOLD = 0.5
+INPUT_SHAPE			 = (224, 224)
 
-# Video stream start
+mask_net 	 = load_model(arguments["model"])
 video_stream = VideoStream(src=0).start()
 time.sleep(2.0)
 
 def detect_faces_and_predict_mask(frame, face_net, mask_net):
 	(h, w) = frame.shape[:2]
-	blob   = cv2.dnn.blobFromImage(frame, 1.0, (300, 300), (104.0, 177.0, 123.0))
+	
+	scale_factor = 1.0
+	blob_size 	 = (300, 300)
+	rgb_mean 	 = (104.0, 177.0, 123.0)
+	blob    	 = cv2.dnn.blobFromImage(frame, scale_factor, blob_size, rgb_mean)
 	
 	face_net.setInput(blob)
 	detections = face_net.forward()
@@ -53,7 +55,7 @@ def detect_faces_and_predict_mask(frame, face_net, mask_net):
 
 			face_roi = frame[startY:endY, startX:endX]
 			face_roi = cv2.cvtColor(face_roi, cv2.COLOR_BGR2RGB)
-			face_roi = cv2.resize(face_roi, (224, 224))
+			face_roi = cv2.resize(face_roi, INPUT_SHAPE)
 			face_roi = img_to_array(face_roi)
 			face_roi = preprocess_input(face_roi)
 			face_roi = np.expand_dims(face_roi, axis=0)
@@ -66,41 +68,40 @@ def detect_faces_and_predict_mask(frame, face_net, mask_net):
             
 	return (face_location_list, prediction_list)
 
-# loop over the frames from the video stream
 while True:
-	# grab the frame from the threaded video stream and resize it
-	# to have a maximum width of 400 pixels
 	frame = video_stream.read()
 	frame = imutils.resize(frame, width=400)
-	# detect faces in the frame and determine if they are wearing a
-	# face mask or not
-	(locs, preds) = detect_and_predict_mask(frame, face_net, mask_net)
+	
+	(boxes, predictions) = detect_and_predict_mask(frame, face_net, mask_net)
 
-	# loop over the detected face locations and their corresponding
-	# locations
-	for (box, pred) in zip(locs, preds):
-		# unpack the bounding box and predictions
+	for (box, prediction) in zip(boxes, predictions):
 		(startX, startY, endX, endY) = box
-		(mask, withoutMask) = pred
-		# determine the class label and color we'll use to draw
-		# the bounding box and text
+		(mask, withoutMask) 		 = prediction
+		
 		label = "With Mask" if mask > withoutMask else "No Mask"
-		color = (0, 190, 0) if label == "With Mask" else (0, 0, 255)
-		# include the probability in the label
 		label = "{}: {:.2f}%".format(label, max(mask, withoutMask) * 100)
-		# display the label and bounding box rectangle on the output
-		# frame
-		cv2.putText(img=frame, text=label, org=(startX, startY - 10), 
-                    fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=color, thickness=2)
-		cv2.rectangle(frame, (startX, startY), (endX, endY), color, 2)
-    
-	# show the output frame
-	cv2.imshow("Doug M. - Face Mask Detector", frame)
+
+		color = (0, 190, 0) if label == "With Mask" else (0, 0, 255)
+		
+		cv2.putText(img		  = frame, 
+					text	  = label, 
+					org		  = (startX, startY - 10), 
+                    fontFace  = cv2.FONT_HERSHEY_SIMPLEX, 
+					fontScale = 1, 
+					color	  = color, 
+					thickness = 2)
+
+		cv2.rectangle(img 	 	= frame, 
+					  pt1 		= (startX, startY), 
+					  pt2 	    = (endX, endY), 
+					  color     = color, 
+					  thickness = 2)
+	
+	cv2.imshow(WINDOW_TITLE, frame)
+	
 	key = cv2.waitKey(1) & 0xFF
-	# if the `q` key was pressed, break from the loop
 	if key == ord("q"):
 		break
 
-# do a bit of cleanup
 cv2.destroyAllWindows()
 video_stream.stop()
