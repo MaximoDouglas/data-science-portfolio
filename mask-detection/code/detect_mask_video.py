@@ -26,7 +26,7 @@ args = vars(ap.parse_args())
 print("[INFO] loading face detector model...")
 prototxtPath = os.path.sep.join([args["face"], "deploy.prototxt"])
 weightsPath = os.path.sep.join([args["face"],
-	"res10_300x300_ssd_iter_140000.caffemodel"])
+	"res10_300x300_ssd_iter_140000_fp16.caffemodel"])
 faceNet = cv2.dnn.readNet(prototxtPath, weightsPath)
 # load the face mask detector model from disk
 print("[INFO] loading face mask detector model...")
