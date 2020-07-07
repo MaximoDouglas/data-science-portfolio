@@ -9,6 +9,6 @@ The 3rd-party resources are already integrated with the application. This is a r
 
 # Libraries
 This project make use of three main libraries:
-- __OpenCV:__ to run the video stream and detect when there is one or more faces in the frame;
-- __imutils:__ to handle image (the video frames) manipulations;
-- __Tensorflow 2.0:__ to create, train and predict if the person in the video frame is wearing a mask.
+- __[OpenCV](https://opencv.org/):__ to run the video stream and detect when there is one or more faces in the frame;
+- __[imutils](https://github.com/jrosebr1/imutils):__ to handle image (the video frames) manipulations;
+- __[Tensorflow 2.0](https://www.tensorflow.org/):__ to create, train and predict if the person in the video frame is wearing a mask.
