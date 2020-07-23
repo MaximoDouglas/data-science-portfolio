@@ -19,6 +19,7 @@ model_name = "cnn_3conv_1flt_1dpo_1dense"
 thetav = np.loadtxt(data_path + "thetav-1000.csv",delimiter=',')
 Vec = np.loadtxt(data_path + 'Vecv-1000.csv',delimiter = ',')
 
+# Data pre-processing ---------------------------------------------
 sc = MinMaxScaler()
 X_n = sc.fit_transform(Vec)
 sc2 = MinMaxScaler()
@@ -39,6 +40,7 @@ X_treinamento, X_valid, X_test = X_treinamento.reshape(-1,X_treinamento.shape[1]
 
 X_treinamento.shape,y_treinamento.shape, X_valid.shape, y_valid.shape, X_test.shape, y_test.shape
 
+# Model compilation ------------------------------------------------------------------------------
 def get_model():
     input_layer1 = keras.layers.Input(X_treinamento.shape[1:])
 
@@ -73,7 +75,7 @@ reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='loss', factor=0.5, patien
                                                       min_lr=0.0001)
 file_path = '../models/' + model_name + '.hdf5'
 model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=file_path, monitor='loss', save_best_only=True)
-callbacks = [reduce_lr ,model_checkpoint]
+callbacks = [reduce_lr, model_checkpoint]
 
 model = get_model()
 model.summary()
@@ -90,6 +92,7 @@ history = model.fit(X_treinamento, (y_treinamento),
                     callbacks=callbacks)
                     
 
+# Results -----------------------------------------------------------------
 plt.figure()
 plt.plot(history.history['loss'], label='Erro treinamento')
 plt.plot(history.history['val_loss'], label='Erro validação')

@@ -6,14 +6,19 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error
+import argparse
+
+argument_parser = argparse.ArgumentParser()
+argument_parser.add_argument("-f", "--feature", type=int, default=0, help="feature index")
+arguments = vars(argument_parser.parse_args())
 
 columns = list()
 for i in range(0, 8000):
     columns.append(i)
 columns_10 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-X = pd.read_csv("../data/Vecv-1000.csv", names=columns)
-Y = pd.read_csv("../data/thetav-1000.csv", names=columns_10)
+X = pd.read_csv("../dataset/Vecv-1000.csv", names=columns)
+Y = pd.read_csv("../dataset/thetav-1000.csv", names=columns_10)
 
 sc = MinMaxScaler()
 X = pd.DataFrame(sc.fit_transform(X))
@@ -35,4 +40,6 @@ def svr_process(param, epsilon=0.2):
     print("R-squared: ", score)
     print("MSE: ", mean_squared_error(y_test, y_pred))
 
-svr_process(1, 0)
+svr_process(arguments["feature"], 0)
+
+0.0129+0.0824+0.0844+0.0732+0.0636+0.0144+0.0860+0.0837+0.0089+0.0859
