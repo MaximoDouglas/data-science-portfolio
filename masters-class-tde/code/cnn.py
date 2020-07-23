@@ -12,9 +12,9 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
-data_path = "../data/"
+data_path = "../dataset/"
 results_path = "../results/"
-model_name = "3conv_1flt_1dpo_1dense"
+model_name = "cnn_3conv_1flt_1dpo_1dense"
 
 thetav = np.loadtxt(data_path + "thetav-1000.csv",delimiter=',')
 Vec = np.loadtxt(data_path + 'Vecv-1000.csv',delimiter = ',')
@@ -50,11 +50,11 @@ def get_model():
     conv2 = keras.layers.MaxPooling1D()(conv2)
     conv2 = keras.layers.Activation(activation='relu')(conv2)
 
-    conv3 = keras.layers.Conv1D(filters=96, kernel_size=3)(conv1)
-    conv3 = keras.layers.MaxPooling1D()(conv2)
-    conv3 = keras.layers.Activation(activation='relu')(conv2)
+    conv3 = keras.layers.Conv1D(filters=96, kernel_size=3)(conv2)
+    conv3 = keras.layers.MaxPooling1D()(conv3)
+    conv3 = keras.layers.Activation(activation='relu')(conv3)
 
-    flt = keras.layers.Flatten()(conv2)
+    flt = keras.layers.Flatten()(conv3)
     dropout = keras.layers.Dropout(0.4)(flt)
 
     dense2 = keras.layers.Dense(50,activation='relu')(dropout)
